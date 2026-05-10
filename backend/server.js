@@ -17,11 +17,18 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 const httpServer = createServer(app);
 
-const clientUrl = process.env.CLIENT_URL;
+const allowedOrigins = [
+  ...(process.env.CLIENT_URL ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+  'https://expert-booking-assignment.onrender.com',
+];
+const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
 
 const io = new Server(httpServer, {
   cors: {
-    origin: clientUrl,
+    origin: uniqueAllowedOrigins,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   },
 });
@@ -31,7 +38,7 @@ registerSocketHandlers(io);
 
 app.use(
   cors({
-    origin: clientUrl,
+    origin: uniqueAllowedOrigins,
     credentials: true,
   })
 );
