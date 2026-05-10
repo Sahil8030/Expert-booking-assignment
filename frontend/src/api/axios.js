@@ -1,7 +1,15 @@
 import axios from 'axios';
 
+function resolveApiBaseUrl() {
+  const raw = import.meta.env.VITE_API_URL?.trim();
+  if (raw) return raw.replace(/\/$/, '');
+  if (import.meta.env.DEV) return 'http://localhost:5000/api';
+  // Production on Vercel: same-origin /api → serverless proxy (BACKEND_URL), no public API URL in the client
+  return '/api';
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: resolveApiBaseUrl(),
 });
 
 api.interceptors.response.use(
