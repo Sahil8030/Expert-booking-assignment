@@ -4,8 +4,9 @@ function resolveApiBaseUrl() {
   const raw = import.meta.env.VITE_API_URL?.trim();
   if (raw) return raw.replace(/\/$/, '');
   if (import.meta.env.DEV) return 'http://localhost:5000/api';
-  // Production on Vercel: same-origin /api → serverless proxy (BACKEND_URL), no public API URL in the client
-  return '/api';
+  throw new Error(
+    'Missing VITE_API_URL. In Vercel: Project → Settings → Environment Variables → add VITE_API_URL = https://YOUR-BACKEND-HOST/api (include /api), then redeploy.'
+  );
 }
 
 const api = axios.create({

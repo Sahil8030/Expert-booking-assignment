@@ -94,35 +94,3 @@ cd frontend
 npm run build
 npm run preview
 ```
-
-## Deploy frontend on Vercel (without `VITE_API_URL`)
-
-The app can call your API through **same-origin** `/api` so the browser does not need a public “backend URL” in the client.
-
-1. Deploy the **frontend** folder (or set Vercel **Root Directory** to `frontend`).
-2. In Vercel → **Settings → Environment Variables**, add **`BACKEND_URL`** only (mark as **Sensitive**). Use your Express server origin with **no** trailing slash, e.g. `https://your-api.onrender.com`.  
-   This is used **only** by the serverless proxy in `frontend/api/[...path].js`. You do **not** need `VITE_API_URL` unless you want to override and talk to the API directly.
-3. On your **backend**, set **`CLIENT_URL`** to your Vercel site, e.g. `https://your-app.vercel.app`.
-
-### Socket.IO (live updates)
-
-Production defaults connect to **`window.location.origin`** with path **`/socket.io/`**. Vercel must forward that traffic to your Express server. Add a **rewrite** (same backend host as `BACKEND_URL`) — duplicate URL is required because JSON cannot read env vars:
-
-```json
-{
-  "rewrites": [
-    { "handle": "filesystem" },
-    {
-      "source": "/socket.io/:path*",
-      "destination": "https://YOUR-BACKEND-HOST/socket.io/:path*"
-    },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
-```
-
-Merge this with `frontend/vercel.json` so you keep **`handle: filesystem`** and the SPA fallback. Replace **`YOUR-BACKEND-HOST`** with the same host you use in `BACKEND_URL`.
-
-Optional: set **`VITE_SERVER_URL`** on Vercel if you prefer pointing the socket client at the backend explicitly instead of same-origin + rewrite.
-
-Local dev still uses **`frontend/.env`** with `VITE_API_URL` / `VITE_SERVER_URL` if you want; otherwise dev defaults to `http://localhost:5000`.

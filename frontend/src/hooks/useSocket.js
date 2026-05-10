@@ -6,14 +6,17 @@ export function useSocket(onSlotBooked) {
   callbackRef.current = onSlotBooked;
 
   useEffect(() => {
-    const explicit = import.meta.env.VITE_SERVER_URL?.trim();
+    const raw = import.meta.env.VITE_SERVER_URL?.trim();
     const url =
-      explicit ||
-      (import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin);
-
-    const sameOriginProxy = !import.meta.env.DEV && !explicit;
+      raw ||
+      (import.meta.env.DEV ? 'http://localhost:5000' : '');
+    if (!url) {
+      console.error(
+        'Missing VITE_SERVER_URL. Set it in Vercel to your Socket.IO origin (e.g. https://YOUR-BACKEND-HOST), then redeploy.'
+      );
+      return;
+    }
     const socket = io(url, {
-      ...(sameOriginProxy ? { path: '/socket.io/' } : {}),
       transports: ['websocket', 'polling'],
     });
 
