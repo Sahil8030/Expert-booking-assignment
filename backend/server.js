@@ -23,6 +23,7 @@ const allowedOrigins = [
     .map((s) => s.trim())
     .filter(Boolean),
   'https://expert-booking-assignment.onrender.com',
+  'https://expert-booking-assignment.vercel.app',
 ];
 const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
 
